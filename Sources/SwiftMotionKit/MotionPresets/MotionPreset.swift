@@ -17,9 +17,9 @@ public enum MotionPreset {
     var animation: Animation {
         switch self {
         case .soft:
-            return .interactiveSpring(response: 0.5, dampingFraction: 0.85, blendDuration: 0.2)
+            return .interactiveSpring(response: 0.6, dampingFraction: 0.85)
         case .snappy:
-            return .interactiveSpring(response: 0.35, dampingFraction: 0.75, blendDuration: 0.1)
+            return .interactiveSpring(response: 0.45, dampingFraction: 0.75)
         case .heavy:
             return .interactiveSpring(response: 0.8, dampingFraction: 0.9, blendDuration: 0.2)
         case let .custom(response, dampingFraction):
