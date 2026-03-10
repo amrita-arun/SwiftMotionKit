@@ -19,6 +19,15 @@ SwiftMotionKit provides reusable, gesture-aware swipe components designed to mak
 
 ---
 
+## How Swipe Works
+
+A card dismisses when either:
+
+* The horizontal drag exceeds the configured distance threshold
+
+* The predicted end translation exceeds the velocity threshold
+
+
 ## Installation
 
 Add SwiftMotionKit via Swift Package Manager: 
@@ -151,60 +160,6 @@ OR
     2.    The predicted end translation (from the gesture) exceeds velocityThreshold
 
 This makes both slow drags and fast flicks feel natural.
-## Features
-
-* Velocity-based swipe dismissal
-
-* Configurable swipe thresholds
-
-* Smooth spring-based snap-back
-
-* Stacked card depth layout
-
-* Built-in haptic feedback
-
-* Fully SwiftUI-native
-
-* SPM-ready
-
-## Installation
-
-Add via Swift Package Manager:
-
-https://github.com/amrita-arun/SwiftMotionKit
-
-Then:
-
-```
-import SwiftMotionKit
-Quick Start
-SwipeCardStack(items: cards) { card in
-    RoundedRectangle(cornerRadius: 24)
-        .fill(card.color)
-        .padding(24)
-}
-```
-
-## Configuration
-
-SwipeCardStack(
-    items: cards,
-    swipeThreshold: .percentage(0.25),
-    rotationMultiplier: 12,
-    releasePreset: .snappy,
-    snapBackPreset: .soft,
-    velocityThreshold: 500
-) { card in
-    CardView(card: card)
-}
-
-## How Swipe Works
-
-A card dismisses when either:
-
-* The horizontal drag exceeds the configured distance threshold
-
-* The predicted end translation exceeds the velocity threshold
 
 ## Haptic feedback
 
