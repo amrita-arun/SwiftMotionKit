@@ -1,3 +1,7 @@
+![Swift](https://img.shields.io/badge/Swift-5.9-orange.svg)
+![Platform](https://img.shields.io/badge/Platform-iOS%2015%2B-blue.svg)
+![License](https://img.shields.io/badge/License-MIT-green.svg)
+
 # SwiftMotionKit
 
 > Physics-informed swipe interactions for SwiftUI.
