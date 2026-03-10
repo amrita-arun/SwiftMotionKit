@@ -79,6 +79,9 @@ By default:
 - Fast flicks also dismiss via velocity detection.
 - Cards snap back smoothly if below threshold.
 - Subtle haptic feedback enhances interaction.
+
+![swipeCardStack](https://github.com/user-attachments/assets/af55a894-9914-41c8-84b5-9874615c9b99)
+
     
 ## Configuration 
 
