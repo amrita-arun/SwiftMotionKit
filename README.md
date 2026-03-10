@@ -80,7 +80,8 @@ By default:
 - Cards snap back smoothly if below threshold.
 - Subtle haptic feedback enhances interaction.
 
-![swipeCardStack](https://github.com/user-attachments/assets/af55a894-9914-41c8-84b5-9874615c9b99)
+![swipeCardStackResize](https://github.com/user-attachments/assets/719377b4-8e70-4309-a54f-fc0e5561141b)
+
 
     
 ## Configuration 
