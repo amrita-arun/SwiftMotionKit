@@ -34,11 +34,13 @@ public struct SwipeCardStack<Item: Identifiable, Content: View>: View {
     private let releasePreset: MotionPreset
     private let snapBackPreset: MotionPreset
     private let velocityThreshold: CGFloat // predicted translation threshold
+    private let recyclingMode: RecyclingMode
     private let onSwipe: ((Item, SwipeDirection) -> Void)?
     private let content: (Item) -> Content
 
     // MARK: - State
-    @State private var currentIndex: Int = 0
+    //@State private var currentIndex: Int = 0
+    @State private var stackItems: [Item]
 
     // simpler explicit drag state (reliable)
     @State private var drag: CGSize = .zero
@@ -46,6 +48,8 @@ public struct SwipeCardStack<Item: Identifiable, Content: View>: View {
 
     // Haptics: ensure threshold haptic fires once per gesture
     @State private var hasFiredThresholdHaptic: Bool = false
+    
+    private let stackStyle: StackStyle
 
     // MARK: - Init
     public init(
@@ -57,6 +61,8 @@ public struct SwipeCardStack<Item: Identifiable, Content: View>: View {
         snapBackPreset: MotionPreset = .soft,
         velocityThreshold: CGFloat = 500,
         onSwipe: ((Item, SwipeDirection) -> Void)? = nil,
+        recyclingMode: RecyclingMode = .none,
+        stackStyle: StackStyle = .vertical(),
         @ViewBuilder content: @escaping (Item) -> Content
     ) {
         self.items = items
@@ -67,7 +73,11 @@ public struct SwipeCardStack<Item: Identifiable, Content: View>: View {
         self.snapBackPreset = snapBackPreset
         self.velocityThreshold = velocityThreshold
         self.onSwipe = onSwipe
+        self._stackItems = State(initialValue: items)
+        self.recyclingMode = recyclingMode
         self.content = content
+        self.stackStyle = stackStyle
+        
     }
 
     // MARK: - Body
@@ -88,7 +98,12 @@ public struct SwipeCardStack<Item: Identifiable, Content: View>: View {
                         // visual transforms: vertical stacking (no scaling) for cleaner feel
                         content(item)
                             .frame(maxWidth: .infinity, maxHeight: .infinity)
-                            .offset(y: CGFloat(depthIndex) * 12)
+                            .applyStackStyle(
+                                style: stackStyle,
+                                item: item,
+                                depthIndex: depthIndex,
+                                isTop: isTop
+                            )
                             .zIndex(Double(itemsToShow.count - index))
                             .rotationEffect(
                                 .degrees(
@@ -166,10 +181,9 @@ public struct SwipeCardStack<Item: Identifiable, Content: View>: View {
 
     // MARK: - Throw & Advance
     private func performSwipe(direction: SwipeDirection, item: Item, width: CGFloat, predictedTranslation: CGFloat) {
-        // Use predictedTranslation to scale throw distance for flicks
-        // Ensure at least a base throw so slow but long drags still exit fully
+
         let baseThrow = width * 1.2
-        let extraFromPredicted = min(abs(predictedTranslation), width * 2) // clamp
+        let extraFromPredicted = min(abs(predictedTranslation), width * 2)
         let throwXMagnitude = baseThrow + extraFromPredicted * 0.6
         let throwX = (direction == .right ? 1 : -1) * throwXMagnitude
 
@@ -177,27 +191,73 @@ public struct SwipeCardStack<Item: Identifiable, Content: View>: View {
             drag = CGSize(width: throwX, height: 0)
         }
 
-        // After animation, advance the stack and reset state
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.36) {
-            // advance index (guard for bounds)
-            if currentIndex < items.count - 1 {
-                currentIndex += 1
-            } else {
-                // mark consumed (empty slice)
-                currentIndex = items.count
+
+            // Remove top item
+            guard !stackItems.isEmpty else { return }
+            let removed = stackItems.removeFirst()
+
+            // Infinite recycling
+            if recyclingMode == .infinite {
+                stackItems.append(removed)
             }
-            // reset
+
             drag = .zero
-            hasFiredThresholdHaptic = false
             onSwipe?(item, direction)
         }
     }
 
     // MARK: - Helpers
-    private var visibleItems: ArraySlice<Item> {
-        guard currentIndex < items.count else { return [] }
-        let end = min(currentIndex + visibleCardCount, items.count)
-        return items[currentIndex..<end]
+    private var visibleItems: [Item] {
+        Array(stackItems.prefix(visibleCardCount))
     }
+    
+    
 }
 
+private extension View {
+    @ViewBuilder
+    func applyStackStyle<Item: Identifiable>(
+        style: StackStyle,
+        item: Item,
+        depthIndex: Int,
+        isTop: Bool
+    ) -> some View {
+        switch style {
+
+        case .none:
+            self.opacity(isTop ? 1 : 0)
+
+        case .vertical(let offset):
+            self.offset(y: CGFloat(depthIndex) * offset)
+
+        case .scaleAndOffset(let scaleStep, let offsetStep):
+            self
+                .scaleEffect(1.0 - (CGFloat(depthIndex) * scaleStep))
+                .offset(y: CGFloat(depthIndex) * offsetStep)
+
+        case .rotated(let angleStep, let offsetStep):
+            self
+                .rotationEffect(.degrees(Double(depthIndex) * angleStep))
+                .offset(y: CGFloat(depthIndex) * offsetStep)
+
+        case .randomized(let rotationRange, let offsetRange):
+
+            let rotation = randomInRange(
+                id: item.id,
+                min: rotationRange.lowerBound,
+                max: rotationRange.upperBound
+            )
+
+            let offset = randomInRange(
+                id: item.id,
+                min: Double(offsetRange.lowerBound),
+                max: Double(offsetRange.upperBound)
+            )
+
+            self
+                .rotationEffect(.degrees(rotation))
+                .offset(y: CGFloat(offset))
+        }
+    }
+}

@@ -13,9 +13,13 @@ SwiftMotionKit provides reusable, gesture-aware swipe components designed to mak
 - Smooth spring snap-back  
 - Configurable rotation intensity  
 - Stack depth layout (vertical stacking)  
-- Built-in haptic feedback (rate-limited)  
+- Built-in haptic feedback (rate-limited) 
+- Infinite swipe mode (card recycling)
+- Customizable stack styles (vertical, rotated, randomized, etc.)
+- Deterministic randomized layouts 
 - Fully SwiftUI-native  
 - Swift Package Manager compatible
+
 
 ---
 
@@ -89,11 +93,55 @@ SwipeCardStack(
     releasePreset: .snappy,
     snapBackPreset: .soft,
     velocityThreshold: 500,
-    onSwipe: { item, direction in ... }
+    onSwipe: { item, direction in ... },
+    stackStyle: .randomized(
+        rotationRange: -3...3,
+        offsetRange: 10...14
+    ),
+    recyclingMode: .infinite
 ) { card in
     CardView(card: card)
 }
 ```
+
+### recyclingMode
+
+Controls whether cards are removed or recycled after being dismissed.
+
+```swift
+recyclingMode: .none       // default
+recyclingMode: .infinite   // cards are appended to the bottom
+```
+
+### stackStyle
+
+Controls how background cards are visually displayed.
+
+Available styles:
+
+```swift
+stackStyle: .none
+stackStyle: .vertical(offset: 12)
+stackStyle: .scaleAndOffset(scaleStep: 0.03, offsetStep: 12)
+stackStyle: .rotated(angleStep: 3, offsetStep: 12)
+stackStyle: .randomized(rotationRange: -4...4, offsetRange: 8...16)
+```
+
+.none
+Only the top card is visible.
+
+.vertical
+Cards are stacked underneath with vertical offset.
+
+.scaleAndOffset
+Cards shrink slightly and offset vertically (Tinder-style).
+
+.rotated
+Cards are slightly rotated under the top card.
+
+.randomized
+Cards receive deterministic random rotation and offset for a more organic feel.
+
 
 ### swipeThreshold
 Controls the minimum drag distance required for dismissal.

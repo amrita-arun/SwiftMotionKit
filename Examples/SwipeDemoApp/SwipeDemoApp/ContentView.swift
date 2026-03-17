@@ -15,6 +15,8 @@ struct DemoCard: Identifiable {
 
 struct ContentView: View {
 
+    @State private var recyclingMode: RecyclingMode = .none
+
     let cards = [
         DemoCard(color: .pink),
         DemoCard(color: .blue),
@@ -24,17 +26,30 @@ struct ContentView: View {
     ]
 
     var body: some View {
-        ZStack {
-            Color(.systemBackground)
-                .ignoresSafeArea()
+        VStack {
 
-            SwipeCardStack(items: cards) { card in
+            Picker("Mode", selection: $recyclingMode) {
+                Text("Finite").tag(RecyclingMode.none)
+                Text("Infinite").tag(RecyclingMode.infinite)
+            }
+            .pickerStyle(.segmented)
+            .padding()
+
+            SwipeCardStack(
+                items: cards,
+                recyclingMode: recyclingMode,
+                stackStyle: .randomized(
+                    rotationRange: -5...2,
+                    offsetRange: 10...14
+                )
+            ) { card in
                 RoundedRectangle(cornerRadius: 32)
                     .fill(card.color)
                     .padding(.horizontal, 24)
                     .padding(.vertical, 80)
                     .shadow(color: .black.opacity(0.15), radius: 20, x: 0, y: 10)
             }
+
         }
     }
 }
