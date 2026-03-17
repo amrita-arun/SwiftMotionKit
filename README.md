@@ -1,3 +1,7 @@
+![Swift](https://img.shields.io/badge/Swift-5.9-orange.svg)
+![Platform](https://img.shields.io/badge/Platform-iOS%2015%2B-blue.svg)
+![License](https://img.shields.io/badge/License-MIT-green.svg)
+
 # SwiftMotionKit
 
 > Physics-informed swipe interactions for SwiftUI.
@@ -79,6 +83,10 @@ By default:
 - Fast flicks also dismiss via velocity detection.
 - Cards snap back smoothly if below threshold.
 - Subtle haptic feedback enhances interaction.
+
+![swipeCardStackResize](https://github.com/user-attachments/assets/719377b4-8e70-4309-a54f-fc0e5561141b)
+
+
     
 ## Configuration 
 
